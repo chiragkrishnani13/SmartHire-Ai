@@ -1,0 +1,21 @@
+# Backend
+Backend/build/
+Backend/.gradle/
+Backend/src/main/resources/application.properties
+
+# Frontend
+Frontend/SmartHireAi-frontend/node_modules/
+Frontend/SmartHireAi-frontend/dist/
+Frontend/SmartHireAi-frontend/.angular/
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# Logs
+*.log
