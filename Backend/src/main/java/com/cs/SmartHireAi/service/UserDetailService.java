@@ -4,6 +4,7 @@ import com.cs.SmartHireAi.model.User;
 import com.cs.SmartHireAi.reposistory.AuthReposistory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -28,6 +29,9 @@ public class UserDetailService implements UserDetailsService {
 
         System.out.println("PASSWORD HASH FROM DB = " +
                 user.getPassword_hash());
+
+
+
 
         return org.springframework.security.core.userdetails.User.builder()
                 .username(user.getEmail())
