@@ -33,6 +33,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 	testImplementation 'org.springframework.boot:spring-boot-starter-jdbc-test'
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
+    implementation 'org.apache.pdfbox:pdfbox:2.0.29'
 	runtimeOnly 'com.mysql:mysql-connector-j'
 
 

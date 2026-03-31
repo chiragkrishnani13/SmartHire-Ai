@@ -36,8 +36,11 @@ public class AuthService {
 
             throw new UsernameAlreadyExists();
         } else {
+            String hashedPassword=encodePassword(user.getPassword_hash());
 
-            this.authReposistory.save(user.getEmail(),user.getUsername(),user.getFull_name(),encodePassword(user.getPassword_hash()),user.getPhone_no(),user.getResume_url(),user.getAts_score());
+            this.authReposistory.save(user.getEmail(),user.getUsername(),user.getFull_name(),hashedPassword,user.getPhone_no(),user.getResume_url(),user.getAts_score());
+            System.out.println("REGISTER PASSWORD = " + user.getPassword_hash());
+            System.out.println("HASH = " +hashedPassword);
 
         }
     }
@@ -51,9 +54,9 @@ public class AuthService {
         Matcher matcher = pattern.matcher(email);
         return matcher.matches();
     }
-    private String encodePassword(String password){
+    private String encodePassword(String password_hash){
         BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
-        return bCryptPasswordEncoder.encode(password);
+        return bCryptPasswordEncoder.encode(password_hash);
     }
     public User forgetPassword(Map<String,String> body) throws EmailInvalidException{
         User user = this.authReposistory.findByEmail(body.get("email"));
