@@ -2,18 +2,14 @@ package com.cs.SmartHireAi.model;
 
 import lombok.Getter;
 import lombok.Setter;
+import java.time.LocalDateTime;
 
-@Setter
-@Getter
+@Getter @Setter
 public class User {
-    private int user_id;
-    private String full_name;
-    private String username;
+    private Long id;
+    private String name;
     private String email;
-    private String password_hash;
-    private String phone_no;
-    private String resume_url;
-    private String ats_score;
-    private int active_yn;
+    private String password;
+    private String role;   // APPLICANT | RECRUITER
+    private LocalDateTime createdAt;
 }
-

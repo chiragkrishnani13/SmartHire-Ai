@@ -1,73 +1,76 @@
 package com.cs.SmartHireAi.controller;
 
-import com.cs.SmartHireAi.Exceptions.EmailAlreadyExistsException;
-import com.cs.SmartHireAi.Exceptions.EmailInvalidException;
-import com.cs.SmartHireAi.Exceptions.UsernameAlreadyExists;
+import com.cs.SmartHireAi.exceptions.EmailAlreadyExistsException;
+import com.cs.SmartHireAi.exceptions.EmailInvalidException;
 import com.cs.SmartHireAi.model.User;
 import com.cs.SmartHireAi.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
 
 @RestController
+@RequestMapping("/auth")
 public class AuthController {
-    @Autowired
-    AuthService authService;
+
+    @Autowired AuthService authService;
+
+    // POST /auth/register
+    // Body: { "name": "...", "email": "...", "password": "...", "role": "APPLICANT|RECRUITER" }
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody User user){
+    public ResponseEntity<?> register(@RequestBody User user) {
         try {
-            this.authService.register(user);
-        }
-        catch (UsernameAlreadyExists e){
-            return ResponseEntity.badRequest().body(Map.of("body",e.getMessage()));
+            authService.register(user);
+            return ResponseEntity.ok(Map.of("message", "Registered successfully"));
         } catch (EmailInvalidException e) {
-            return ResponseEntity.badRequest().body(Map.of("body",e.getMessage()));
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         } catch (EmailAlreadyExistsException e) {
-            return ResponseEntity.badRequest().body(Map.of("body",e.getMessage()));
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
-        return ResponseEntity.ok().body(Map.of("body","Inserted Succesfully!!"));
     }
+
+    // GET /auth/users
     @GetMapping("/users")
-    public List<Map<String,Object>> getUsers(){
-        return this.authService.getUsers();
+    public List<Map<String, Object>> getUsers() {
+        return authService.getUsers();
     }
 
+    // POST /auth/forget-password
+    // Body: { "email": "..." }
     @PostMapping("/forget-password")
-    public ResponseEntity<?> forgetPassword(@RequestBody Map<String,String> body)  {
+    public ResponseEntity<?> forgetPassword(@RequestBody Map<String, String> body) {
         try {
-            this.authService.forgetPassword(body);
+            authService.forgetPassword(body);
+            return ResponseEntity.ok(Map.of("message", "Password reset email sent"));
+        } catch (EmailInvalidException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
-        catch (EmailInvalidException e){
-            return ResponseEntity.badRequest().body(Map.of("body",e.getMessage()));
-        }
-        return ResponseEntity.ok().body(Map.of("body","User Valid!!"));
-    }
-    @PostMapping("valid-token")
-    public ResponseEntity<?> validToken(@RequestBody Map<String,String> token) {
-        if(this.authService.validToken(token)){
-            System.out.println("Not Valid");
-            return ResponseEntity.badRequest().body(Map.of("body","Token Time Expired"));
-        }
-        System.out.println("valid");
-        return ResponseEntity.ok().body(Map.of("body","Token Valid!!"));
-    }
-    @PostMapping("update-password")
-    public ResponseEntity<?> updatePassword(@RequestBody Map<String,String> data){
-        if(this.authService.updatePassword(data)){
-            return ResponseEntity.ok().body(Map.of("body","Password Updated"));
-        }
-        else{
-            return ResponseEntity.badRequest().body(Map.of("body","Token Time Expired"));
-        }
-
-
     }
 
+    // POST /auth/valid-token
+    // Body: { "token": "..." }
+    @PostMapping("/valid-token")
+    public ResponseEntity<?> validToken(@RequestBody Map<String, String> body) {
+        if (authService.isTokenValid(body.get("token"))) {
+            return ResponseEntity.ok(Map.of("message", "Token is valid"));
+        }
+        return ResponseEntity.badRequest().body(Map.of("message", "Token expired or invalid"));
+    }
+
+    // POST /auth/update-password
+    // Body: { "token": "...", "password": "..." }
+    @PostMapping("/update-password")
+    public ResponseEntity<?> updatePassword(@RequestBody Map<String, String> data) {
+        if (authService.updatePassword(data)) {
+            return ResponseEntity.ok(Map.of("message", "Password updated successfully"));
+        }
+        return ResponseEntity.badRequest().body(Map.of("message", "Token expired or invalid"));
+    }
+
+    @GetMapping("/test-db")
+    public ResponseEntity<?> testDb() {
+        return ResponseEntity.ok(Map.of("message", "Database connected successfully"));
+    }
 }
-

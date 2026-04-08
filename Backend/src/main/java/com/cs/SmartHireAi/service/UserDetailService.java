@@ -1,43 +1,29 @@
 package com.cs.SmartHireAi.service;
 
 import com.cs.SmartHireAi.model.User;
-import com.cs.SmartHireAi.reposistory.AuthReposistory;
+import com.cs.SmartHireAi.repository.AuthRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.*;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UserDetailService implements UserDetailsService {
 
     @Autowired
-    private AuthReposistory authReposistory;
+    AuthRepository authRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String email)
-            throws UsernameNotFoundException {
-
-        System.out.println("LOGIN EMAIL RECEIVED = " + email);
-
-        User user = authReposistory.findByEmail(email);
-
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        User user = authRepository.findByEmail(email);
         if (user == null) {
-            throw new UsernameNotFoundException(
-                    "User not found with email: " + email
-            );
+            throw new UsernameNotFoundException("User not found: " + email);
         }
-
-        System.out.println("PASSWORD HASH FROM DB = " +
-                user.getPassword_hash());
-
-
-
-
+        // Role stored as APPLICANT / RECRUITER — Spring expects ROLE_ prefix
+        String springRole = user.getRole() != null ? user.getRole() : "APPLICANT";
         return org.springframework.security.core.userdetails.User.builder()
                 .username(user.getEmail())
-                .password(user.getPassword_hash())
-                .roles("USER")
-                .disabled(user.getActive_yn() == 0)
+                .password(user.getPassword())
+                .roles(springRole)
                 .build();
     }
 }

@@ -1,7 +1,5 @@
-package com.cs.SmartHireAi.Exceptions;
+package com.cs.SmartHireAi.exceptions;
 
-public class EmailAlreadyExistsException extends Exception{
-    public EmailAlreadyExistsException(){
-        super("Email Already Exists");
-    }
+public class EmailAlreadyExistsException extends Exception {
+    public EmailAlreadyExistsException() { super("Email already exists"); }
 }
