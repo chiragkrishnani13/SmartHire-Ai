@@ -1,10 +1,9 @@
 package com.cs.SmartHireAi.service;
 
-import com.cs.SmartHireAi.Exceptions.EmailAlreadyExistsException;
-import com.cs.SmartHireAi.Exceptions.EmailInvalidException;
-import com.cs.SmartHireAi.Exceptions.UsernameAlreadyExists;
+import com.cs.SmartHireAi.exceptions.EmailAlreadyExistsException;
+import com.cs.SmartHireAi.exceptions.EmailInvalidException;
 import com.cs.SmartHireAi.model.User;
-import com.cs.SmartHireAi.reposistory.AuthReposistory;
+import com.cs.SmartHireAi.repository.AuthRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,91 +19,73 @@ import java.util.regex.Pattern;
 
 @Service
 public class AuthService {
-    @Autowired
-    AuthReposistory authReposistory;
-    @Autowired
-    EmailService emailService;
-    Logger logger = LoggerFactory.getLogger(AuthService.class);
-    public void register(User user) throws EmailInvalidException, UsernameAlreadyExists, EmailAlreadyExistsException {
-        if (!this.isEmailValid(user.getEmail())) {
-            throw new EmailInvalidException();
-        } else if (this.authReposistory.findByEmail(user.getEmail()) !=null) {
-            throw new EmailAlreadyExistsException();
 
-        } else if (this.authReposistory.findByUserName(user.getUsername()) != null) {
-            logger.debug("Come here");
+    @Autowired AuthRepository authRepository;
+    @Autowired EmailService emailService;
 
-            throw new UsernameAlreadyExists();
+    private final Logger logger = LoggerFactory.getLogger(AuthService.class);
+    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
+    // ── Register ──────────────────────────────────────────────────────────────
+    public void register(User user)
+            throws EmailInvalidException, EmailAlreadyExistsException {
+
+        if (!isEmailValid(user.getEmail())) throw new EmailInvalidException();
+        if (authRepository.findByEmail(user.getEmail()) != null) throw new EmailAlreadyExistsException();
+
+        // Validate role
+        String role = user.getRole();
+        if (role == null || (!role.equals("APPLICANT") && !role.equals("RECRUITER"))) {
+            role = "APPLICANT"; // default
+        }
+
+        authRepository.save(user.getName(), user.getEmail(),
+                encoder.encode(user.getPassword()), role);
+    }
+
+    // ── List users ────────────────────────────────────────────────────────────
+    public List<Map<String, Object>> getUsers() {
+        return authRepository.getUsers();
+    }
+
+    // ── Forget password ───────────────────────────────────────────────────────
+    public void forgetPassword(Map<String, String> body) throws EmailInvalidException {
+        User user = authRepository.findByEmail(body.get("email"));
+        if (user == null) throw new EmailInvalidException();
+
+        Map<?, ?> existing = authRepository.checkTokenExistsForEmail(body.get("email"));
+        LocalDateTime expiry = LocalDateTime.now().plusMinutes(15);
+
+        if (existing == null) {
+            authRepository.saveResetToken(UUID.randomUUID().toString(), user.getId(), expiry);
         } else {
-            String hashedPassword=encodePassword(user.getPassword_hash());
-
-            this.authReposistory.save(user.getEmail(),user.getUsername(),user.getFull_name(),hashedPassword,user.getPhone_no(),user.getResume_url(),user.getAts_score());
-            System.out.println("REGISTER PASSWORD = " + user.getPassword_hash());
-            System.out.println("HASH = " +hashedPassword);
-
-        }
-    }
-    public List<Map<String,Object>> getUsers(){
-        return this.authReposistory.getUsers() ;
-    }
-    public boolean isEmailValid(String email) {
-        if(email==null) return false;
-        String REGEX = "^[A-Za-z0-9_+.]+@[A-Za-z0-9_+.]+\\.[a-z]{2,}$";
-        Pattern pattern = Pattern.compile(REGEX);
-        Matcher matcher = pattern.matcher(email);
-        return matcher.matches();
-    }
-    private String encodePassword(String password_hash){
-        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
-        return bCryptPasswordEncoder.encode(password_hash);
-    }
-    public User forgetPassword(Map<String,String> body) throws EmailInvalidException{
-        User user = this.authReposistory.findByEmail(body.get("email"));
-        System.out.println(user);
-        if(user == null){
-            throw new EmailInvalidException();
+            authRepository.updateTokenExpiry(user.getId(), expiry);
         }
 
-        Map<?,?> res = this.authReposistory.checkTokenAlreadyExist(body.get("email"));
-        if(res == null){
-//                new
-            String token = UUID.randomUUID().toString();
-            LocalDateTime expiry = LocalDateTime.now().plusMinutes(15);
-            int user_id = user.getUser_id();
-            authReposistory.saveResetToken(token,user_id,expiry);
-        }
-        else {
-//                update
-            LocalDateTime expiry = LocalDateTime.now().plusMinutes(15);
-            this.authReposistory.updateTokenExpiry(user.getUser_id(),expiry);
-
-        }
-        Map<?,?> token = this.authReposistory.updateTokenByUserID(user.getUser_id());
-        emailService.sendEmail(user.getEmail(), (String) token.get("token"));
-
-        return null;
-
-
+        Map<?, ?> tokenRow = authRepository.getTokenByUserId(user.getId());
+        emailService.sendPasswordResetEmail(user.getEmail(), (String) tokenRow.get("token"));
     }
-    public boolean validToken(Map<String,String> token){
-        Map<?,?> res = this.authReposistory.validToken(token.get("token"));
-        System.out.println(res);
-        return res == null;
 
+    // ── Validate token ────────────────────────────────────────────────────────
+    public boolean isTokenValid(String token) {
+        return authRepository.findValidToken(token) != null;
     }
-    public boolean updatePassword(Map<String,String> data){
 
-        Map<?,?> res = this.authReposistory.findUserByToken(data.get("token"));
-        if(res == null){
-            System.out.println("Token Expire HOO Chuka hai");
-            return false;
-        }
-        else {
-            System.out.println(res);
-            this.authReposistory.updatePassword(this.encodePassword(data.get("password")),data.get("token"),(int) res.get("user_id"));
-            return true;
-        }
+    // ── Update password ───────────────────────────────────────────────────────
+    public boolean updatePassword(Map<String, String> data) {
+        Map<String, Object> tokenRow = authRepository.findValidToken(data.get("token"));
+        if (tokenRow == null) return false;
+
+        Long userId = ((Number) tokenRow.get("user_id")).longValue();
+        authRepository.updatePassword(encoder.encode(data.get("password")), data.get("token"), userId);
+        return true;
+    }
+
+    // ── Helpers ───────────────────────────────────────────────────────────────
+    private boolean isEmailValid(String email) {
+        if (email == null) return false;
+        Pattern p = Pattern.compile("^[A-Za-z0-9_+.]+@[A-Za-z0-9_+.]+\\.[a-z]{2,}$");
+        Matcher m = p.matcher(email);
+        return m.matches();
     }
 }
-
-
