@@ -7,11 +7,11 @@ import java.time.LocalDateTime;
 @Getter @Setter
 public class Application {
     private Long id;
-    private Long jobId;
+    private Long job_id;
     private Long applicantId;
-    private String round1Status = "PENDING";
-    private String round2Status = "PENDING";
-    private String round3Status = "PENDING";
-    private String round4Status = "PENDING";
+    private String round1_status = "PENDING";
+    private String round2_status = "PENDING";
+    private String round3_status = "PENDING";
+    private String round4_status = "PENDING";
     private LocalDateTime appliedAt;
 }
