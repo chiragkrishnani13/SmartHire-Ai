@@ -36,18 +36,25 @@ public class SecurityConfig {
         http
             .authenticationProvider(authenticationProvider())
             .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers(
-                    "/auth/register",
-                    "/auth/login",
-                    "/auth/forget-password",
-                    "/auth/valid-token",
-                    "/auth/update-password",
-                    "/test-db",
-                    "/ats/calculate"
-                ).permitAll()
-                .anyRequest().authenticated()
-            )
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/auth/register",
+                                "/auth/login",
+                                "/auth/forget-password",
+                                "/auth/valid-token",
+                                "/auth/update-password",
+                                "/test-db",
+                                "/ats/calculate"
+                        ).permitAll()
+
+                        .requestMatchers("/round1/**").hasRole("RECRUITER")
+                        .requestMatchers("/jobs/create/**").hasRole("RECRUITER")
+
+                        .requestMatchers("/applications/apply/**").hasRole("APPLICANT")
+                        .requestMatchers("/profile/**").hasRole("APPLICANT")
+
+                        .anyRequest().authenticated()
+                )
             .formLogin(form -> form
                 .loginProcessingUrl("/auth/login")
                 .usernameParameter("email")
