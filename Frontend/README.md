@@ -1,27 +1,114 @@
-# SmartHireAiFrontend
+# SmartHireAI — Angular Frontend
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 16.2.1.
+AI-powered recruitment platform frontend built with Angular 17.
 
-## Development server
+## 🚀 Quick Start
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+### 1. Install Dependencies
+```bash
+npm install
+```
 
-## Code scaffolding
+### 2. Start Backend
+Make sure your Spring Boot backend is running on `http://localhost:8080`
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+### 3. Run Development Server
+```bash
+npm start
+# OR
+ng serve --proxy-config proxy.conf.json
+```
 
-## Build
+Open `http://localhost:4200`
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+---
 
-## Running unit tests
+## 📁 Project Structure
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+```
+src/app/
+├── auth/
+│   ├── landing/          # Marketing landing page
+│   ├── login/            # Login page
+│   ├── register/         # Registration with role picker
+│   └── forgot-password/  # Password reset
+│
+├── dashboard/
+│   ├── applicant-dashboard/   # Applicant home
+│   └── recruiter-dashboard/   # Recruiter home with job cards
+│
+├── jobs/
+│   ├── job-list/         # Browse & search all jobs
+│   ├── job-detail/       # Job detail + one-click apply
+│   └── job-create/       # Recruiter: post new job
+│
+├── applicant/
+│   ├── applicant-profile/  # Profile form + resume upload
+│   └── my-applications/    # Application tracker with timeline
+│
+├── recruiter/
+│   ├── recruiter-applicants/  # Pipeline view + ATS + Round 1 decisions
+│   └── mcq-manage/            # Create & release MCQ tests
+│
+├── mcq/
+│   └── mcq-test/         # Full MCQ test-taking interface with timer
+│
+└── shared/
+    ├── services/
+    │   ├── auth.service.ts   # Login, register, JWT/Basic auth
+    │   └── api.service.ts    # All backend API calls
+    ├── interceptors/
+    │   └── auth.interceptor.ts  # Attaches Basic Auth header
+    ├── guards/
+    │   └── auth.guard.ts    # Route protection
+    ├── navbar/
+    └── sidebar/
+```
 
-## Running end-to-end tests
+---
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+## 🔑 Authentication
 
-## Further help
+This app uses **HTTP Basic Auth** (matching your Spring Security setup).
+Credentials are stored as base64 in localStorage and sent via `Authorization` header.
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+---
+
+## 🔗 API Endpoints Used
+
+| Method | Endpoint | Component |
+|--------|----------|-----------|
+| POST | /auth/register | Register |
+| GET | /auth/users | Login (matches email) |
+| POST | /auth/forget-password | ForgotPassword |
+| GET | /job/all | JobList, Dashboards |
+| GET | /job/:id | JobDetail |
+| POST | /job/savejobdetails | JobCreate |
+| GET | /job/search | JobList |
+| POST | /applications/apply/:jobId | JobDetail |
+| GET | /applications/my | MyApplications |
+| GET | /applications/job/:jobId | RecruiterApplicants |
+| GET | /applicant/profile | ApplicantProfile |
+| POST | /applicant/profile | ApplicantProfile |
+| PUT | /applicant/profile | ApplicantProfile |
+| POST | /applicant/upload-resume | ApplicantProfile |
+| POST | /ats/calculate | RecruiterApplicants |
+| POST | /round1/select | RecruiterApplicants |
+| POST | /round1/reject | RecruiterApplicants |
+| POST | /round2/mcq/create | McqManage |
+| POST | /round2/mcq/release/:jobId | McqManage |
+| GET | /round2/mcq/start/:jobId | McqTest |
+
+---
+
+## 🎨 Design System
+
+Dark industrial theme with electric teal accent:
+- **Primary**: `#00e5c3` (teal)
+- **Warning**: `#ffb347` (amber)  
+- **Error**: `#ff4d6d` (red)
+- **Background**: `#0a0c0f`
+- **Font Display**: Syne (headings)
+- **Font Body**: DM Sans
+
+All design tokens are in `src/styles.css` as CSS custom properties.

@@ -1,0 +1,30 @@
+{
+  "/auth": {
+    "target": "http://localhost:8080",
+    "secure": false
+  },
+  "/job": {
+    "target": "http://localhost:8080",
+    "secure": false
+  },
+  "/applications": {
+    "target": "http://localhost:8080",
+    "secure": false
+  },
+  "/applicant": {
+    "target": "http://localhost:8080",
+    "secure": false
+  },
+  "/ats": {
+    "target": "http://localhost:8080",
+    "secure": false
+  },
+  "/round1": {
+    "target": "http://localhost:8080",
+    "secure": false
+  },
+  "/round2": {
+    "target": "http://localhost:8080",
+    "secure": false
+  }
+}
