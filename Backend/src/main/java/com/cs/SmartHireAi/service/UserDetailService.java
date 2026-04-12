@@ -18,8 +18,12 @@ public class UserDetailService implements UserDetailsService {
         if (user == null) {
             throw new UsernameNotFoundException("User not found: " + email);
         }
+
         // Role stored as APPLICANT / RECRUITER — Spring expects ROLE_ prefix
-        String springRole = user.getRole() != null ? user.getRole() : "APPLICANT";
+        String springRole = (user.getRole() != null && !user.getRole().isBlank())
+                ? user.getRole().trim().toUpperCase()
+                : "APPLICANT";
+
         return org.springframework.security.core.userdetails.User.builder()
                 .username(user.getEmail())
                 .password(user.getPassword())
