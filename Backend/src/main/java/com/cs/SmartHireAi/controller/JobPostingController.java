@@ -31,12 +31,12 @@ public class JobPostingController {
     }
     // GET JOB BY ID
     @GetMapping("/{id}")
-    public ResponseEntity<?> getJob(@PathVariable Long id) {
+    public ResponseEntity<?> getJob(@PathVariable(name = "id") Long id) {
         return ResponseEntity.ok(jobPostingService.getJobById(id));
     }
     // UPDATE JOB
         @PutMapping("/update/{id}")
-        public ResponseEntity<?> updateJob(@PathVariable Long id,@RequestBody Job job, Authentication authentication) {
+        public ResponseEntity<?> updateJob(@PathVariable(name = "id") Long id,@RequestBody Job job, Authentication authentication) {
             try {
                 job.setId(id);
                 jobPostingService.updateJob(job, authentication);
@@ -47,7 +47,7 @@ public class JobPostingController {
         }
     // DELETE JOB
     @PatchMapping("/delete/{id}")
-    public ResponseEntity<?> deleteJob(@PathVariable Long id, Authentication authentication) {
+    public ResponseEntity<?> deleteJob(@PathVariable(name = "id") Long id, Authentication authentication) {
         try {
             jobPostingService.deleteJob(id, authentication);
             return ResponseEntity.ok("Job deleted");

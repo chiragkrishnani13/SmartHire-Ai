@@ -2,8 +2,7 @@ package com.cs.SmartHireAi.service;
 
 import com.cs.SmartHireAi.model.CreateMcqTestRequest;
 import com.cs.SmartHireAi.model.McqTest;
-import com.cs.SmartHireAi.repository.McqTestRepository;
-import com.cs.SmartHireAi.repository.Round1Repository;
+import com.cs.SmartHireAi.repository.McqTestReposistory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,8 +12,8 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class McqTestService {
 
-    private final McqTestRepository repository;
-    private final Round1Repository round1Repository;
+    private final McqTestReposistory
+            repository;
 
     public void createTest(CreateMcqTestRequest request, Long recruiterId) {
 
@@ -35,13 +34,6 @@ public class McqTestService {
 
         if (!test.isReleased()) {
             return "Test not released yet";
-        }
-
-        String status =
-                round1Repository.getRound1Status(jobId, applicantId);
-
-        if (status == null || !status.equalsIgnoreCase("SELECTED")) {
-            return "Not eligible for this round";
         }
 
         LocalDateTime now = LocalDateTime.now();

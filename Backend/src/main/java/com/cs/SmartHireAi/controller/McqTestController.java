@@ -24,16 +24,17 @@ public class McqTestController {
     public String createTest(
             @RequestBody CreateMcqTestRequest request,
             Authentication authentication) {
-            String email  = authentication.getName();
-            System.out.println(email);
-           User user  = authRepository.findByEmail(email);
-
+            String  email  = authentication.getName();
+            User user =  authRepository.findByEmail(email);
         Long recruiterId = user.getId(); // later extract from JWT/session
 
         service.createTest(request, recruiterId);
 
         return "MCQ Test Created Successfully";
     }
+
+
+
     @PreAuthorize("hasRole('RECRUITER')")
     @PostMapping("/release/{jobId}")
     public String releaseTest(@PathVariable("jobId")  Long jobId) {

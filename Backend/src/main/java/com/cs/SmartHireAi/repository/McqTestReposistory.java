@@ -1,17 +1,16 @@
 package com.cs.SmartHireAi.repository;
 
-import com.cs.SmartHireAi.model.CreateMcqTestRequest;
-import com.cs.SmartHireAi.model.McqTest;
+import com.cs.SmartHireAi.model.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-
 @Repository
 @RequiredArgsConstructor
-public class McqTestRepository {
 
-    private final JdbcTemplate jdbcTemplate;
-
+public class McqTestReposistory {
+    @Autowired
+     JdbcTemplate  jdbcTemplate;
     public void createTest(CreateMcqTestRequest request, Long recruiterId) {
 
         String sql = """
@@ -76,4 +75,5 @@ public class McqTestRepository {
                 jobId
         );
     }
+
 }

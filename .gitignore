@@ -4,9 +4,10 @@ Backend/.gradle/
 Backend/src/main/resources/application.properties
 
 # Frontend
-Frontend/SmartHireAi-frontend/node_modules/
-Frontend/SmartHireAi-frontend/dist/
-Frontend/SmartHireAi-frontend/.angular/
+Frontend
+Frontend/node_modules/
+Frontend/dist/
+Frontend/.angular/
 
 # IDE files
 .idea/
@@ -19,3 +20,10 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Angular cache
+Frontend/.angular/
+node_modules/
+dist/
+
+*.zip

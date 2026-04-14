@@ -17,7 +17,6 @@ public class EmailService {
         String html = String.format("""
                 <h2>SmartHire AI – Password Reset</h2>
                 <p>Click the link below to reset your password (expires in 15 minutes):</p>
-                <a href="http://localhost:4200/reset-password/%s">Reset Password</a>
                 """, token);
 
         try {

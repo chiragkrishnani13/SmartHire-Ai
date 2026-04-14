@@ -44,8 +44,10 @@ public class JobsPostingRepository {
     }
     // GET JOB BY ID
     public Job getJobById(Long id) {
-        return jdbcTemplate.queryForObject(
-                "SELECT * FROM jobs WHERE id = ? AND active_yn = 1",
+        String query = " SELECT *\n" +
+                "        FROM jobs\n" +
+                "        WHERE id = ?";
+        return jdbcTemplate.queryForObject(query,
                 (rs, rowNum) -> {
                     Job job = new Job();
                     job.setId(rs.getLong("id"));
